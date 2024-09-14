@@ -17,7 +17,7 @@
         addressTypeElement.click();
         await new Promise((resolve) => setTimeout(resolve, 500)); // sleep
 
-        const universalAddressSelector = '.balance_okui-popup .balance_okui-select-item:nth-child(2)';
+        const universalAddressSelector = '.balance_okui-select-item:nth-child(2)';
         const universalAddressElement = document.querySelector(universalAddressSelector);
         if (!universalAddressElement) {
             console.error('Опция "Универсальный адрес" не найдена');
@@ -46,7 +46,8 @@
                 await new Promise((resolve) => setTimeout(resolve, 1000)); // sleep
             }
 
-            const addressInput = document.querySelectorAll('input.balance_okui-input-input[placeholder="Адрес блокчейна"]')[i];
+            const addressInputs = document.querySelectorAll('input.balance_okui-input-input[placeholder="Адрес блокчейна"]');
+            const addressInput = addressInputs[addressInputs.length - 1]; // Выбираем последний добавленный input
             if (!addressInput) {
                 console.error(`Поле для ввода адреса ${i + 1} не найдено`);
                 continue;
@@ -54,21 +55,21 @@
             console.log(`Заполнение адреса ${i + 1}: ${wallets[i]}`);
             fillInput(addressInput, wallets[i]);
 
-            const networkDropdown = document.querySelectorAll('input.balance_okui-input-input[placeholder="Выберите сеть"]')[i];
+            const networkDropdowns = document.querySelectorAll('div.value.placeholder');
+            const networkDropdown = Array.from(networkDropdowns)
+                .filter(el => el.textContent.trim() === "Выберите сеть")
+                .pop(); // Выбираем последний добавленный dropdown
             if (!networkDropdown) {
                 console.error(`Поле для выбора сети ${i + 1} не найдено`);
                 continue;
             }
             networkDropdown.click();
             await new Promise((resolve) => setTimeout(resolve, 500)); // sleep
-
-            const bitcoinOption = document.evaluate(
-                '//div[contains(@class, "balance_okui-select-item") and text()="Bitcoin"]',
-                document,
-                null,
-                XPathResult.FIRST_ORDERED_NODE_TYPE,
-                null
-            ).singleNodeValue;
+            
+            const bitcoinOptions = document.querySelectorAll('.balance_okui-select-item');
+            const bitcoinOption = Array.from(bitcoinOptions)
+                .filter(el => el.innerText.trim() === "Bitcoin")
+                .pop(); // Выбираем последний добавленный вариант Bitcoin
 
             if (!bitcoinOption) {
                 console.error(`Опция "Bitcoin" ${i + 1} не найдена`);
